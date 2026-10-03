@@ -9,7 +9,7 @@
 示例（demo 图）：
 
 ```
-http://localhost:3000/?url=https%3A%2F%2Fimg.remit.ee%2Fi%2FnSh3OhR04ki2
+http://localhost:3000/?url=https%3A%2F%2Fraw.githubusercontent.com%2Fgordicaleksa%2Fpytorch-original-transformer%2Fmain%2Fdata%2Freadme_pics%2Ftransformer_architecture.PNG
 ```
 
 ## 功能
@@ -109,7 +109,7 @@ vercel --prod   # 部署到生产环境
 部署完成后，用如下链接查看图片（图片地址需 URL 编码）：
 
 ```
-https://<项目名>.vercel.app/?url=https%3A%2F%2Fimg.remit.ee%2Fi%2FnSh3OhR04ki2
+https://<项目名>.vercel.app/?url=https%3A%2F%2Fraw.githubusercontent.com%2Fgordicaleksa%2Fpytorch-original-transformer%2Fmain%2Fdata%2Freadme_pics%2Ftransformer_architecture.PNG
 ```
 
 在页面里粘贴图片地址后点「查看」，再点「复制分享链接」，即可得到当前图片的分享 URL。

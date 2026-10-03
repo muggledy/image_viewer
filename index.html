@@ -101,7 +101,7 @@
 <header>
   <div class="brand">图片<span>查看器</span></div>
   <input id="urlInput" class="url-input" type="text" spellcheck="false"
-         placeholder="粘贴图片 URL，例如 https://img.remit.ee/i/nSh3OhR04ki2" />
+         placeholder="粘贴图片 URL，回车或点「查看」" />
   <button id="loadBtn" class="primary">查看</button>
   <button id="shareBtn">复制分享链接</button>
 </header>
@@ -147,7 +147,7 @@
 (function () {
   'use strict';
 
-  var DEMO_URL = 'https://img.remit.ee/i/nSh3OhR04ki2';
+  var DEMO_URL = 'https://raw.githubusercontent.com/gordicaleksa/pytorch-original-transformer/main/data/readme_pics/transformer_architecture.PNG';
   var API = './api/image';
   var canProxy = location.protocol === 'http:' || location.protocol === 'https:';
 
@@ -264,9 +264,9 @@
   function load(u) {
     if (!u) return;
     state.url = u;
+    resetDetails();
     urlInput.value = u;
     document.getElementById('origLink').value = u;
-    resetDetails();
     overlay.style.display = 'flex';
     overlay.textContent = '加载中…';
     img.classList.remove('ready');
@@ -311,6 +311,8 @@
   var drag = null;
   stage.addEventListener('pointerdown', function (e) {
     if (e.button !== 0 || !img.classList.contains('ready')) return;
+    // 工具栏按钮在 stage 内部，若在此捕获指针会把按钮的 click 事件一并吞掉
+    if (e.target.closest('button, .toolbar')) return;
     drag = { x: e.clientX, y: e.clientY, tx: state.tx, ty: state.ty };
     stage.setPointerCapture(e.pointerId);
     stage.classList.add('dragging');

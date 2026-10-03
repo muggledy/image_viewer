@@ -43,5 +43,5 @@ http.createServer((req, res) => {
   });
 }).listen(PORT, () => {
   console.log('本地预览： http://localhost:' + PORT);
-  console.log('带参数：   http://localhost:' + PORT + '/?url=' + encodeURIComponent('https://img.remit.ee/i/nSh3OhR04ki2'));
+  console.log('带参数：   http://localhost:' + PORT + '/?url=' + encodeURIComponent('https://raw.githubusercontent.com/gordicaleksa/pytorch-original-transformer/main/data/readme_pics/transformer_architecture.PNG'));
 });

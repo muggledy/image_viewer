@@ -36,6 +36,7 @@
   .stage {
     flex: 1; position: relative; overflow: hidden; background: #101114;
     cursor: grab; touch-action: none; overscroll-behavior: none;
+    user-select: none; -webkit-user-select: none;
     display: flex; align-items: center; justify-content: center;
     background-image:
       linear-gradient(45deg, #16171b 25%, transparent 25%, transparent 75%, #16171b 75%),
@@ -108,7 +109,7 @@
 
 <main>
   <div class="stage" id="stage">
-    <img id="img" alt="预览" />
+    <img id="img" alt="预览" draggable="false" />
     <div class="overlay-msg" id="overlay">输入图片链接开始查看，或点击下方示例</div>
     <div class="zoombadge" id="zoomBadge">100%</div>
     <div class="hint">滚轮缩放 · 拖拽平移 · 双击适应窗口</div>
@@ -308,29 +309,48 @@
   }, { passive: false });
 
   // 拖拽平移
-  var drag = null;
-  stage.addEventListener('pointerdown', function (e) {
+  var drag = null;        // { id, x, y, tx, ty }
+  var dragMoved = false;  // 本次手势是否发生了实际位移，用于区分“双击”与“两次快速拖拽”
+
+  function onPointerDown(e) {
     if (e.button !== 0 || !img.classList.contains('ready')) return;
     // 工具栏按钮在 stage 内部，若在此捕获指针会把按钮的 click 事件一并吞掉
     if (e.target.closest('button, .toolbar')) return;
-    drag = { x: e.clientX, y: e.clientY, tx: state.tx, ty: state.ty };
-    stage.setPointerCapture(e.pointerId);
+    e.preventDefault();   // 阻止浏览器原生图片拖拽与文本选择
+    drag = { id: e.pointerId, x: e.clientX, y: e.clientY, tx: state.tx, ty: state.ty };
+    dragMoved = false;
     stage.classList.add('dragging');
-  });
-  stage.addEventListener('pointermove', function (e) {
-    if (!drag) return;
-    state.tx = drag.tx + (e.clientX - drag.x);
-    state.ty = drag.ty + (e.clientY - drag.y);
-    apply();
-  });
-  function endDrag() { drag = null; stage.classList.remove('dragging'); }
-  stage.addEventListener('pointerup', endDrag);
-  stage.addEventListener('pointercancel', endDrag);
+    try { stage.setPointerCapture(e.pointerId); } catch (err) { /* 捕获失败不影响拖拽 */ }
+  }
 
-  // 工具栏在 stage 内部，dblclick 会冒泡上来；连点缩放按钮会被判为双击，
-  // 若不加守卫会触发 fit()，表现为“缩小过程突然跳回默认大小”
+  function onPointerMove(e) {
+    if (!drag || e.pointerId !== drag.id) return;
+    if (e.buttons === 0) { endDrag(); return; }  // 兜底：鼠标已在窗口外松开
+    var dx = e.clientX - drag.x;
+    var dy = e.clientY - drag.y;
+    if (!dragMoved && Math.abs(dx) + Math.abs(dy) > 3) dragMoved = true;
+    state.tx = drag.tx + dx;
+    state.ty = drag.ty + dy;
+    apply();
+  }
+
+  function endDrag() {
+    if (!drag) return;
+    drag = null;
+    stage.classList.remove('dragging');
+  }
+
+  stage.addEventListener('pointerdown', onPointerDown);
+  // 挂在 window 上：不依赖指针捕获，指针移出 stage 也能持续收到移动事件
+  window.addEventListener('pointermove', onPointerMove);
+  window.addEventListener('pointerup', endDrag);
+  window.addEventListener('pointercancel', endDrag);
+
+  // 双击“适应窗口”：仅当手势没有实际拖动时才生效。否则测试时“按住-拖-松开”
+  // 连续操作会被判为双击，触发 fit() 把图复位，表现为“拖不动”。
   stage.addEventListener('dblclick', function (e) {
     if (e.target.closest('button, .toolbar')) return;
+    if (dragMoved) return;
     fit(true);
   });
 

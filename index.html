@@ -327,7 +327,12 @@
   stage.addEventListener('pointerup', endDrag);
   stage.addEventListener('pointercancel', endDrag);
 
-  stage.addEventListener('dblclick', function () { fit(true); });
+  // 工具栏在 stage 内部，dblclick 会冒泡上来；连点缩放按钮会被判为双击，
+  // 若不加守卫会触发 fit()，表现为“缩小过程突然跳回默认大小”
+  stage.addEventListener('dblclick', function (e) {
+    if (e.target.closest('button, .toolbar')) return;
+    fit(true);
+  });
 
   // 工具栏
   document.getElementById('rotateLeft').addEventListener('click', function () { rotate(-90); });

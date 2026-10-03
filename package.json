@@ -1,0 +1,9 @@
+{
+  "name": "image-viewer",
+  "version": "1.0.0",
+  "private": true,
+  "description": "在线图片查看器：通过 ?url= 参数传入图片地址，支持预览、旋转、滚轮缩放、下载（Vercel 无服务器代理）",
+  "engines": {
+    "node": ">=18"
+  }
+}
